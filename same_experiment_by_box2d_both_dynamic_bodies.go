@@ -37,9 +37,6 @@ func main() {
   pos1 := box2d.MakeB2Vec2(100.0, -100.0)
   pos2 := box2d.MakeB2Vec2(100.0, 0.0)
   pos3 := box2d.MakeB2Vec2(100.0, 300.0)
-  /*
-  pos4 := box2d.MakeB2Vec2(100.0, 100.0)
-  */
 
   var polygon *box2d.B2Body
   {
@@ -93,8 +90,9 @@ func main() {
   uniformVelocityIterations := 0
   uniformPositionIterations := 0
   {
-    fmt.Printf("\n#################\nMoving the polygon to %v\n", pos2)
-    moveDynamicBody(polygon, pos2, uniformTimeStepSeconds)
+    targetPos := pos2
+    fmt.Printf("\n#################\nMoving the polygon to %v\n", targetPos)
+    moveDynamicBody(polygon, targetPos, uniformTimeStepSeconds)
     world.Step(uniformTimeStepSeconds, uniformVelocityIterations, uniformPositionIterations)
     itContacts := world.GetContactList()
     for itContacts != nil {
@@ -103,8 +101,20 @@ func main() {
     }
   }
   {
-    fmt.Printf("\n#################\nMoving the polygon to %v\n", pos3)
-    moveDynamicBody(polygon, pos3, uniformTimeStepSeconds)
+    targetPos := pos3
+    fmt.Printf("\n#################\nMoving the polygon to %v\n", targetPos)
+    moveDynamicBody(polygon, targetPos, uniformTimeStepSeconds)
+    world.Step(uniformTimeStepSeconds, uniformVelocityIterations, uniformPositionIterations)
+    itContacts := world.GetContactList()
+    for itContacts != nil {
+      observeContact(&world, itContacts)
+      itContacts = itContacts.GetNext()
+    }
+  }
+  {
+    targetPos := pos2
+    fmt.Printf("\n#################\nMoving the polygon to %v\n", targetPos)
+    moveDynamicBody(polygon, targetPos, uniformTimeStepSeconds)
     world.Step(uniformTimeStepSeconds, uniformVelocityIterations, uniformPositionIterations)
     itContacts := world.GetContactList()
     for itContacts != nil {
