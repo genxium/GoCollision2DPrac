@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-
 	"github.com/ByteArena/box2d"
 )
 
@@ -68,7 +67,7 @@ func prettyPrintBody(body *box2d.B2Body) {
 	fmt.Printf("}\n")
 }
 
-func observeContact(world *box2d.B2World, itContacts box2d.B2ContactInterface) {
+func observeContact(world *box2d.B2World, itContacts box2d.B2ContactInterface, toDestroyBody *box2d.B2Body, shouldDestroyTheSpecifiedBodyIfTouching bool) {
 	fmt.Printf("Got an AABB contact!\n")
 	fixtureA := itContacts.GetFixtureA()
 	fixtureB := itContacts.GetFixtureB()
@@ -77,6 +76,11 @@ func observeContact(world *box2d.B2World, itContacts box2d.B2ContactInterface) {
 		prettyPrintFixture(fixtureA)
 		fmt.Printf("and\nfixtureB\n")
 		prettyPrintFixture(fixtureB)
+
+   if shouldDestroyTheSpecifiedBodyIfTouching {
+	   fmt.Printf("Destroying the touching target body\n")
+     world.DestroyBody(toDestroyBody)
+   }
 	}
 }
 
@@ -85,10 +89,6 @@ func moveDynamicBody(body *box2d.B2Body, toTargetPosition box2d.B2Vec2, inSecond
 		fmt.Printf("This is NOT a dynamic body!\n")
 		return
 	}
-	/*
-	  currentPosition := body.GetPosition()
-	  positionDiff := box2d.B2Vec2Sub(toTargetPosition, currentPosition)
-	*/
 	body.SetTransform(toTargetPosition, 0.0)
 	body.SetLinearVelocity(box2d.MakeB2Vec2(0.0, 0.0))
 	body.SetAngularVelocity(0.0)
@@ -165,7 +165,7 @@ func main() {
 		world.Step(uniformTimeStepSeconds, uniformVelocityIterations, uniformPositionIterations)
 		itContacts := world.GetContactList()
 		for itContacts != nil {
-			observeContact(&world, itContacts)
+			observeContact(&world, itContacts, circle, false)
 			itContacts = itContacts.GetNext()
 		}
 	}
@@ -179,7 +179,7 @@ func main() {
 		world.Step(uniformTimeStepSeconds, uniformVelocityIterations, uniformPositionIterations)
 		itContacts := world.GetContactList()
 		for itContacts != nil {
-			observeContact(&world, itContacts)
+			observeContact(&world, itContacts, circle, false)
 			itContacts = itContacts.GetNext()
 		}
 	}
@@ -198,12 +198,36 @@ func main() {
     * During the immediately following statement,
     * - at the beginning no new fixture has been added since creation of the only two bodies, thus `world.M_contactManager.FindNewContacts` won't be called,  
     * - then there's existing AABB contacts in `world.M_contactManager.M_contactList`, thus `world.M_contactManager.Collide()` will mark `IsTouching` appropriately.
+    *
+    * Such specific order of contact(s) management of each `world.Step(...)` is a characteristic of box2d, which is convenient to make use of in HighFPS applications. 
     */
 		world.Step(uniformTimeStepSeconds, uniformVelocityIterations, uniformPositionIterations)
 		itContacts := world.GetContactList()
 		for itContacts != nil {
-			observeContact(&world, itContacts)
+			observeContact(&world, itContacts, circle, true)
 			itContacts = itContacts.GetNext()
 		}
 	}
+  {
+		targetPos := pos3
+		fmt.Printf("\n#################\nMoving the polygon to %v\n", targetPos)
+		moveDynamicBody(polygon, targetPos, uniformTimeStepSeconds)
+		world.Step(uniformTimeStepSeconds, uniformVelocityIterations, uniformPositionIterations)
+		itContacts := world.GetContactList()
+		for itContacts != nil {
+			observeContact(&world, itContacts, circle, false)
+			itContacts = itContacts.GetNext()
+		}
+  }
+  {
+		targetPos := pos2
+		fmt.Printf("\n#################\nMoving the polygon to %v\n", targetPos)
+		moveDynamicBody(polygon, targetPos, uniformTimeStepSeconds)
+		world.Step(uniformTimeStepSeconds, uniformVelocityIterations, uniformPositionIterations)
+		itContacts := world.GetContactList()
+		for itContacts != nil {
+			observeContact(&world, itContacts, circle, false)
+			itContacts = itContacts.GetNext()
+		}
+  }
 }
