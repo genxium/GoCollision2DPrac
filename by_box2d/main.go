@@ -84,12 +84,12 @@ func observeContact(world *box2d.B2World, itContacts box2d.B2ContactInterface, t
 	}
 }
 
-func moveDynamicBody(body *box2d.B2Body, toTargetPosition box2d.B2Vec2, inSeconds float64) {
+func moveDynamicBody(body *box2d.B2Body, pToTargetPos *box2d.B2Vec2, inSeconds float64) {
 	if body.GetType() != box2d.B2BodyType.B2_dynamicBody {
 		fmt.Printf("This is NOT a dynamic body!\n")
 		return
 	}
-	body.SetTransform(toTargetPosition, 0.0)
+	body.SetTransform(*pToTargetPos, 0.0)
 	body.SetLinearVelocity(box2d.MakeB2Vec2(0.0, 0.0))
 	body.SetAngularVelocity(0.0)
 }
@@ -158,7 +158,7 @@ func main() {
 	{
 		targetPos := pos2
 		fmt.Printf("\n#################\nMoving the polygon to %v\n", targetPos)
-		moveDynamicBody(polygon, targetPos, uniformTimeStepSeconds)
+		moveDynamicBody(polygon, &targetPos, uniformTimeStepSeconds)
     /**
     * During the immediately following statement, effective contact(s) will be discovered by `world.M_contactManager.FindNewContacts()` and marked as `IsTouching` by `world.M_contactManager.Collide()`.
     */
@@ -172,7 +172,7 @@ func main() {
 	{
 		targetPos := pos3
 		fmt.Printf("\n#################\nMoving the polygon to %v\n", targetPos)
-		moveDynamicBody(polygon, targetPos, uniformTimeStepSeconds)
+		moveDynamicBody(polygon, &targetPos, uniformTimeStepSeconds)
     /**
     * During the immediately following statement, the previously effective contact(s) will be removed from `world.M_contactManager`.
     */
@@ -186,7 +186,7 @@ func main() {
 	{
 		targetPos := pos2
 		fmt.Printf("\n#################\nMoving the polygon to %v\n", targetPos)
-		moveDynamicBody(polygon, targetPos, uniformTimeStepSeconds)
+		moveDynamicBody(polygon, &targetPos, uniformTimeStepSeconds)
     /**
     * During the immediately following statement,
     * - at the beginning no new fixture has been added since creation of the only two bodies, thus `world.M_contactManager.FindNewContacts` won't be called,  
@@ -211,7 +211,7 @@ func main() {
   {
 		targetPos := pos3
 		fmt.Printf("\n#################\nMoving the polygon to %v\n", targetPos)
-		moveDynamicBody(polygon, targetPos, uniformTimeStepSeconds)
+		moveDynamicBody(polygon, &targetPos, uniformTimeStepSeconds)
 		world.Step(uniformTimeStepSeconds, uniformVelocityIterations, uniformPositionIterations)
 		itContacts := world.GetContactList()
 		for itContacts != nil {
@@ -222,7 +222,7 @@ func main() {
   {
 		targetPos := pos2
 		fmt.Printf("\n#################\nMoving the polygon to %v\n", targetPos)
-		moveDynamicBody(polygon, targetPos, uniformTimeStepSeconds)
+		moveDynamicBody(polygon, &targetPos, uniformTimeStepSeconds)
 		world.Step(uniformTimeStepSeconds, uniformVelocityIterations, uniformPositionIterations)
 		itContacts := world.GetContactList()
 		for itContacts != nil {
